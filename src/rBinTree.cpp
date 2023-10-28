@@ -23,7 +23,7 @@ Node* binTree::create(int digit)
 
 bool toLeft(Node* node, int digit)
 {
-   if (node->number < digit)
+   if (node->number > digit)
       return true;
    return false;
 }
@@ -59,14 +59,14 @@ void binTree::display()
 
 void binTree::display(Node* current, int level)
 {
-   if (current->left)
-      display(current->left, level + 4);
+   if (current->right)
+      display(current->right, level + 4);
 
    std::cout << std::setfill(' ') << std::setw(level);
    std::cout << current->number << std::endl;
    
-   if (current->right)
-      display(current->right, level + 4);
+   if (current->left)
+      display(current->left, level + 4);
 }
 
 Node* binTree::retRoot()
@@ -74,22 +74,38 @@ Node* binTree::retRoot()
    return root;
 }
 
-bool isSimilar(binTree tree1, binTree tree2)
+bool binTree::isHere(int digit)
 {
-   return isSimilar(tree1.retRoot(), tree2.retRoot());
+   return isHere(root, digit);
 }
 
-bool isSimilar(Node* node1, Node* node2)
+bool binTree::isHere(Node* node, int digit)
 {
-   if (node1 == nullptr && node2 == nullptr)
-      return true;
-   
-   else if (node1 == nullptr || node2 == nullptr)
+   if (node == nullptr)
       return false;
+   else if (digit == node->number)
+      return true;
+   else if (digit < node->number)
+      return isHere(node->left, digit);
+   else return isHere(node->right, digit);
+}
+
+bool isSimilar(binTree tree1, binTree tree2)
+{
+   return isSimilar(tree2.retRoot(), tree1);
+}
+
+
+bool isSimilar(Node* node2, binTree tree1)
+{
+   if ( !(node2->left || node2->right) )
+      return tree1.isHere(node2->number);
    
-   else
-   {
-      if (node1->number == node2->number && isSimilar(node1->left, node2->left) && isSimilar(node1->right, node2->right)) return true;
-      else return false;
-   }
+   else if (node2->right && !node2->left)
+      return isSimilar(node2->right, tree1);
+   
+   else if (!node2->right && node2->left)
+      return isSimilar(node2->left, tree1);
+
+   return tree1.isHere(node2->number) && isSimilar(node2->left, tree1) && isSimilar(node2->right, tree1);
 } 
